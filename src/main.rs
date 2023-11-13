@@ -1,5 +1,5 @@
 use std::io;
-use turing_machine::{string2tape, compile_turing_machine};
+use turing_machine::compile_turing_machine;
 
 pub mod turing_machine;
 
@@ -35,7 +35,7 @@ fn main() {
         let mut input = String::new();
         io::stdin().read_line(&mut input).expect("Failed to read line");
 
-        tm.set_tape(string2tape(input.trim()));
+        tm.set_tape(input.trim());
         let result = tm.run(false);
         tm.print_tape();
         println!("{}, {}", result, tm.state);

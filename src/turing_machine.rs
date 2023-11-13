@@ -41,19 +41,12 @@ impl<TState> TuringMachine<TState> where TState: PartialEq + Copy + Debug + std:
         }
     }
 
-    fn add_transition(&mut self, transition: Transition<TState>) {
-        self.transitions.push(transition);
-    }
-
-    pub fn set_tape(&mut self, tape: Vec<TapeCharacter>) {
-        self.tape = tape;
-        if self.tape[0] != TapeCharacter::Blank {
-            self.tape.insert(0, TapeCharacter::Blank);
-        }
-        if self.tape[self.tape.len() - 1] != TapeCharacter::Blank {
-            self.tape.push(TapeCharacter::Blank);
-        }
+    pub fn set_tape(&mut self, tape: &str) {
         self.head = 0;
+        self.tape = tape.chars().map(|c| TapeCharacter::Symbol(c)).collect();
+
+        self.tape.insert(0, TapeCharacter::Blank);
+        self.tape.push(TapeCharacter::Blank);
     }
 
     pub fn print_tape(&self) {
@@ -76,7 +69,8 @@ impl<TState> TuringMachine<TState> where TState: PartialEq + Copy + Debug + std:
                 transition.state == self.state && transition.read == self.tape[self.head]
             });
             if verbose {
-                println!("{}: {:?} ; {:?}", self.state, transition, self.tape);
+                //print!("{}: {:?} ; ", self.state, transition);
+                self.print_tape();
             }
             match transition {
                 Some(transition) => {
@@ -108,10 +102,6 @@ impl<TState> TuringMachine<TState> where TState: PartialEq + Copy + Debug + std:
             }
         }
     }
-}
-
-pub fn string2tape(string: &str) -> Vec<TapeCharacter> {
-    string.chars().map(|c| TapeCharacter::Symbol(c)).collect()
 }
 
 pub fn compile_turing_machine(code: &str) -> TuringMachine<&str> {
@@ -147,7 +137,7 @@ pub fn compile_turing_machine(code: &str) -> TuringMachine<&str> {
             panic!("Invalid instruction: {}", line);
         }
 
-        tm.add_transition(Transition {
+        tm.transitions.push(Transition {
             action: match func_def[0].trim() {
                 "ML" => Action::MoveLeft,
                 "MR" => Action::MoveRight,
